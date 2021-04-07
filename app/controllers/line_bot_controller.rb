@@ -58,7 +58,7 @@ class LineBotController < ApplicationController
         }
       end
     end
-    
+
     def set_carousel(hotels)
       bubbles = []
       hotels.each do |hotel|
@@ -67,6 +67,15 @@ class LineBotController < ApplicationController
       {
         type: 'carousel',
         contents: bubbles
+      }
+    end
+
+    def set_bubble(hotel)
+      {
+        type: 'bubble',
+        hero: set_hero(hotel),
+        body: set_body(hotel),
+        footer: set_footer(hotel)
       }
     end
 end
