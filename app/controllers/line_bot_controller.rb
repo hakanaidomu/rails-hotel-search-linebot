@@ -38,8 +38,8 @@ class LineBotController < ApplicationController
         'applicationId' => ENV['RAKUTEN_APPID'],
         'hits' => 5,
         'responseType' => 'small',
-        'formatVersion' => 2
         'datumType' => 1,
+        'formatVersion' => 2
       }
       response = http_client.get(url, query)
       response = JSON.parse(response.body)
@@ -57,10 +57,16 @@ class LineBotController < ApplicationController
           contents: set_carousel(response['hotels'])
         }
       end
-
-      message = {
-        type: 'text',
-        text: text
+    end
+    
+    def set_carousel(hotels)
+      bubbles = []
+      hotels.each do |hotel|
+        bubbles.push set_bubble(hotel[0]['hotelBasicInfo'])
+      end
+      {
+        type: 'carousel',
+        contents: bubbles
       }
     end
 end
