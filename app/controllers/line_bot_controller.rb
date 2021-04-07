@@ -1,5 +1,6 @@
 class LineBotController < ApplicationController
   protect_from_forgery except: [:callback]
+
   def callback
     body = request.body.read
     signature = request.env['HTTP_X_LINE_SIGNATURE']
@@ -10,14 +11,14 @@ class LineBotController < ApplicationController
       events.each do |event|
         case event
         when Line::Bot::Event::Message
-          message = search_and_create_message(event.message['text'])
-          client.reply_message(event['replyToken'], message)
           case event.type
           when Line::Bot::Event::MessageType::Text
-          end
+            message = search_and_create_message(event.message['text'])
+            client.reply_message(event['replyToken'], message)
         end
       end
-      head :ok
+    end
+    head :ok
   end
 
   private
@@ -42,17 +43,21 @@ class LineBotController < ApplicationController
       response = http_client.get(url, query)
       response = JSON.parse(response.body)
 
-      text = ''
-      response['hotels'].each do |hotel|
-        text <<
-          hotel[0]['hotelBasicInfo']['hotelName'] + "\n" +
-          hotel[0]['hotelBasicInfo']['hotelInformationUrl'] + "\n" +
-          "\n"
-
-          message = {
-            type: 'text',
-            text: text
-          }
+      if response.key?('error')
+        text = "この検索条件に該当する宿泊施設が見つかりませんでした。\n条件を変えて再検索してください。"
+      else
+        text = ''
+        response['hotels'].each do |hotel|
+          text <<
+            hotel[0]['hotelBasicInfo']['hotelName'] + "\n" +
+            hotel[0]['hotelBasicInfo']['hotelInformationUrl'] + "\n" +
+            "\n"
+        end
       end
+
+      message = {
+        type: 'text',
+        text: text
+      }
     end
 end
