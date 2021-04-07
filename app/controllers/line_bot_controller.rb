@@ -10,10 +10,7 @@ class LineBotController < ApplicationController
       events.each do |event|
         case event
         when Line::Bot::Event::Message
-          message = {
-            type: 'text',
-            text: event.message['text']
-          }
+          message = search_and_create_message(event.message['text'])
           client.reply_message(event['replyToken'], message)
           case event.type
           when Line::Bot::Event::MessageType::Text
@@ -42,4 +39,20 @@ class LineBotController < ApplicationController
         'responseType' => 'small',
         'formatVersion' => 2
       }
+      response = http_client.get(url, query)
+      response = JSON.parse(response.body)
+
+      text = ''
+      response['hotels'].each do |hotel|
+        text <<
+          hotel[0]['hotelBasicInfo']['hotelName'] + "\n" +
+          hotel[0]['hotelBasicInfo']['hotelInformationUrl'] + "\n" +
+          "\n"
+
+          message = {
+            type: 'text',
+            text: text
+          }
+      end
+    end
 end
