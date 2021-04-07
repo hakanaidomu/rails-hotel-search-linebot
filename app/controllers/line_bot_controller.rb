@@ -39,6 +39,7 @@ class LineBotController < ApplicationController
         'hits' => 5,
         'responseType' => 'small',
         'formatVersion' => 2
+        'datumType' => 1,
       }
       response = http_client.get(url, query)
       response = JSON.parse(response.body)
