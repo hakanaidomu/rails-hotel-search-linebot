@@ -46,14 +46,16 @@ class LineBotController < ApplicationController
 
       if response.key?('error')
         text = "この検索条件に該当する宿泊施設が見つかりませんでした。\n条件を変えて再検索してください。"
+        {
+          type: 'text',
+          text: text
+        }
       else
-        text = ''
-        response['hotels'].each do |hotel|
-          text <<
-            hotel[0]['hotelBasicInfo']['hotelName'] + "\n" +
-            hotel[0]['hotelBasicInfo']['hotelInformationUrl'] + "\n" +
-            "\n"
-        end
+        {
+          type: 'flex',
+          altText: '宿泊検索の結果です。',
+          contents: set_carousel(response['hotels'])
+        }
       end
 
       message = {
